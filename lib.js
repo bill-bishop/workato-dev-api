@@ -143,6 +143,30 @@ function apiTriggerConfig() {
   ];
 }
 
+// ── Setup commands ────────────────────────────────────────────────────────────
+
+function cmdBootstrapClaude(destDir) {
+  const src = path.join(__dirname, 'CLAUDE.md');
+  const dest = path.join(destDir ?? process.cwd(), 'CLAUDE.md');
+  fs.copyFileSync(src, dest);
+  console.log(`CLAUDE.md written to ${dest}`);
+  return dest;
+}
+
+function cmdAuth(token, destDir) {
+  const envPath = path.join(destDir ?? process.cwd(), '.env');
+  let content = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';
+  const line = `WORKATO_API_TOKEN=${token}`;
+  if (/^WORKATO_API_TOKEN=/m.test(content)) {
+    content = content.replace(/^WORKATO_API_TOKEN=.*/m, line);
+  } else {
+    content = content ? content.trimEnd() + '\n' + line + '\n' : line + '\n';
+  }
+  fs.writeFileSync(envPath, content);
+  console.log(`Token saved to ${envPath}`);
+  return envPath;
+}
+
 // ── Read commands ─────────────────────────────────────────────────────────────
 
 async function cmdGet(recipeId) {
@@ -313,6 +337,8 @@ module.exports = {
   // helpers
   findStep, deepMerge, extractCode,
   apiTriggerCode, apiTriggerConfig,
+  // setup commands
+  cmdBootstrapClaude, cmdAuth,
   // read commands
   cmdGet, cmdListRecipes, cmdListProjects, cmdListFolders,
   cmdListConnections, cmdListDataTables, cmdGetDataTable,

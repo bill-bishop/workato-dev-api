@@ -982,6 +982,144 @@ describe('cmdUpdateStep — deeply nested step', () => {
   });
 });
 
+// ── cmdBootstrapClaude ────────────────────────────────────────────────────────
+
+describe('cmdBootstrapClaude', () => {
+  function tmpDir() {
+    const d = path.join(os.tmpdir(), `workato-test-${Date.now()}-${Math.random()}`);
+    fs.mkdirSync(d, { recursive: true });
+    return d;
+  }
+
+  test('copies CLAUDE.md into the destination directory', () => {
+    const dir = tmpDir();
+    try {
+      lib.cmdBootstrapClaude(dir);
+      assert.ok(fs.existsSync(path.join(dir, 'CLAUDE.md')), 'CLAUDE.md should exist in dest dir');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('written file content matches the source CLAUDE.md', () => {
+    const dir = tmpDir();
+    try {
+      lib.cmdBootstrapClaude(dir);
+      const srcPath = path.join(__dirname, '..', 'CLAUDE.md');
+      const src = fs.readFileSync(srcPath, 'utf8');
+      const dest = fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf8');
+      assert.equal(dest, src);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('returns the destination file path', () => {
+    const dir = tmpDir();
+    try {
+      const result = lib.cmdBootstrapClaude(dir);
+      assert.equal(result, path.join(dir, 'CLAUDE.md'));
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('overwrites an existing CLAUDE.md', () => {
+    const dir = tmpDir();
+    try {
+      fs.writeFileSync(path.join(dir, 'CLAUDE.md'), 'old content');
+      lib.cmdBootstrapClaude(dir);
+      const content = fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf8');
+      assert.notEqual(content, 'old content');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
+// ── cmdAuth ───────────────────────────────────────────────────────────────────
+
+describe('cmdAuth', () => {
+  function tmpDir() {
+    const d = path.join(os.tmpdir(), `workato-auth-test-${Date.now()}-${Math.random()}`);
+    fs.mkdirSync(d, { recursive: true });
+    return d;
+  }
+
+  test('creates .env with token when file does not exist', () => {
+    const dir = tmpDir();
+    try {
+      lib.cmdAuth('mytoken123', dir);
+      const content = fs.readFileSync(path.join(dir, '.env'), 'utf8');
+      assert.ok(content.includes('WORKATO_API_TOKEN=mytoken123'));
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('returns the .env file path', () => {
+    const dir = tmpDir();
+    try {
+      const result = lib.cmdAuth('tok', dir);
+      assert.equal(result, path.join(dir, '.env'));
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('updates existing WORKATO_API_TOKEN line in .env', () => {
+    const dir = tmpDir();
+    try {
+      fs.writeFileSync(path.join(dir, '.env'), 'WORKATO_API_TOKEN=oldtoken\n');
+      lib.cmdAuth('newtoken', dir);
+      const content = fs.readFileSync(path.join(dir, '.env'), 'utf8');
+      assert.ok(content.includes('WORKATO_API_TOKEN=newtoken'), 'should have new token');
+      assert.ok(!content.includes('oldtoken'), 'should not have old token');
+      assert.equal((content.match(/WORKATO_API_TOKEN=/g) || []).length, 1, 'only one token line');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('appends token to .env that has other keys but no WORKATO_API_TOKEN', () => {
+    const dir = tmpDir();
+    try {
+      fs.writeFileSync(path.join(dir, '.env'), 'OTHER_KEY=value\n');
+      lib.cmdAuth('mytoken', dir);
+      const content = fs.readFileSync(path.join(dir, '.env'), 'utf8');
+      assert.ok(content.includes('OTHER_KEY=value'), 'existing key preserved');
+      assert.ok(content.includes('WORKATO_API_TOKEN=mytoken'), 'token appended');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('token value containing = is preserved verbatim', () => {
+    const dir = tmpDir();
+    try {
+      lib.cmdAuth('tok==extra==', dir);
+      const content = fs.readFileSync(path.join(dir, '.env'), 'utf8');
+      assert.ok(content.includes('WORKATO_API_TOKEN=tok==extra=='));
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('preserves other keys in .env when updating token', () => {
+    const dir = tmpDir();
+    try {
+      fs.writeFileSync(path.join(dir, '.env'), 'FOO=bar\nWORKATO_API_TOKEN=old\nBAZ=qux\n');
+      lib.cmdAuth('updated', dir);
+      const content = fs.readFileSync(path.join(dir, '.env'), 'utf8');
+      assert.ok(content.includes('FOO=bar'), 'FOO preserved');
+      assert.ok(content.includes('BAZ=qux'), 'BAZ preserved');
+      assert.ok(content.includes('WORKATO_API_TOKEN=updated'), 'token updated');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
 // Restore console at end
 process.on('exit', () => {
   console.log = origLog;

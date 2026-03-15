@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 'use strict';
 
-const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const {
   loadEnv,
+  cmdBootstrapClaude, cmdAuth,
   cmdGet, cmdListRecipes, cmdListProjects, cmdListFolders,
   cmdListConnections, cmdListDataTables, cmdGetDataTable,
   cmdGetJobs, cmdGetJob,
@@ -13,12 +13,19 @@ const {
   cmdStart, cmdStop, cmdDelete,
 } = require('./lib');
 
-// bootstrap-claude runs before env/token setup — handle it immediately
-if (process.argv[2] === 'bootstrap-claude') {
-  const src = path.join(__dirname, 'CLAUDE.md');
-  const dest = path.join(process.cwd(), 'CLAUDE.md');
-  fs.copyFileSync(src, dest);
-  console.log(`CLAUDE.md written to ${dest}`);
+// Setup commands run before env/token setup
+const _setupCmd = process.argv[2];
+if (_setupCmd === 'bootstrap-claude') {
+  cmdBootstrapClaude(process.cwd());
+  process.exit(0);
+}
+if (_setupCmd === 'auth') {
+  const token = process.argv[3];
+  if (!token) {
+    console.error('Usage: workato auth <token>');
+    process.exit(1);
+  }
+  cmdAuth(token, process.cwd());
   process.exit(0);
 }
 
@@ -29,7 +36,7 @@ loadEnv(path.join(os.homedir(), '.env'));
 loadEnv(path.join(process.cwd(), '.env'));
 
 if (!process.env.WORKATO_API_TOKEN) {
-  console.error('Error: WORKATO_API_TOKEN not set.\nCreate a .env file in your current directory with:\n  WORKATO_API_TOKEN=your_token_here');
+  console.error('Error: WORKATO_API_TOKEN not set.\nRun: workato auth <your_token>\nOr create a .env file with: WORKATO_API_TOKEN=your_token_here');
   process.exit(1);
 }
 
@@ -61,6 +68,7 @@ workato <command> [options]
 
 Setup:
   bootstrap-claude                           Copy CLAUDE.md into the current directory
+  auth <token>                               Save API token to .env in the current directory
 
 Read commands:
   get <recipe_id>                            Fetch recipe code → recipe_<id>_code.json

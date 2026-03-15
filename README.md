@@ -31,13 +31,16 @@ You can also export it directly in your shell environment.
 
 ## Claude Code setup
 
-In a clean working directory, run this once before starting Claude Code:
+In a clean working directory, run these two commands once before starting Claude Code:
 
 ```sh
+npx workato-dev-api auth YOUR_API_TOKEN
 npx workato-dev-api bootstrap-claude
 ```
 
-This writes a `CLAUDE.md` with full context — recipe code structure, wiring syntax, data table column naming, and project reference IDs — directly into your working directory where Claude Code will pick it up automatically.
+That's it. The first command saves your token to `.env`. The second drops a `CLAUDE.md` into the directory so Claude Code automatically has full context — recipe structure, wiring syntax, data table column names, and project reference IDs.
+
+Then just open Claude Code in that directory and start working.
 
 ## Commands
 
@@ -46,6 +49,7 @@ This writes a `CLAUDE.md` with full context — recipe code structure, wiring sy
 | Command | Description |
 |---|---|
 | `workato bootstrap-claude` | Copy `CLAUDE.md` into the current directory |
+| `workato auth <token>` | Save your API token to `.env` in the current directory |
 
 ### Read
 
