@@ -1083,9 +1083,9 @@ describe('readProjectConfig', () => {
   });
 });
 
-// ── cmdBootstrapClaude ────────────────────────────────────────────────────────
+// ── cmdBootstrap ────────────────────────────────────────────────────────
 
-describe('cmdBootstrapClaude', () => {
+describe('cmdBootstrap', () => {
   function tmpDir() {
     const d = path.join(os.tmpdir(), `workato-test-${Date.now()}-${Math.random()}`);
     fs.mkdirSync(d, { recursive: true });
@@ -1095,7 +1095,7 @@ describe('cmdBootstrapClaude', () => {
   test('copies CLAUDE.md into the destination directory', () => {
     const dir = tmpDir();
     try {
-      lib.cmdBootstrapClaude(dir);
+      lib.cmdBootstrap(dir);
       assert.ok(fs.existsSync(path.join(dir, 'CLAUDE.md')), 'CLAUDE.md should exist in dest dir');
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
@@ -1105,7 +1105,7 @@ describe('cmdBootstrapClaude', () => {
   test('written file content matches the source CLAUDE.md', () => {
     const dir = tmpDir();
     try {
-      lib.cmdBootstrapClaude(dir);
+      lib.cmdBootstrap(dir);
       const srcPath = path.join(__dirname, '..', 'CLAUDE.md');
       const src = fs.readFileSync(srcPath, 'utf8');
       const dest = fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf8');
@@ -1118,7 +1118,7 @@ describe('cmdBootstrapClaude', () => {
   test('returns the destination file path', () => {
     const dir = tmpDir();
     try {
-      const result = lib.cmdBootstrapClaude(dir);
+      const result = lib.cmdBootstrap(dir);
       assert.equal(result, path.join(dir, 'CLAUDE.md'));
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
@@ -1129,7 +1129,7 @@ describe('cmdBootstrapClaude', () => {
     const dir = tmpDir();
     try {
       fs.writeFileSync(path.join(dir, 'CLAUDE.md'), 'old content');
-      lib.cmdBootstrapClaude(dir);
+      lib.cmdBootstrap(dir);
       const content = fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf8');
       assert.notEqual(content, 'old content');
     } finally {

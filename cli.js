@@ -5,7 +5,7 @@ const os = require('os');
 const path = require('path');
 const {
   loadEnv, setConfig, resolveBaseUrl, readProjectConfig,
-  cmdBootstrapClaude, cmdAuth,
+  cmdBootstrap, cmdAuth,
   cmdGet, cmdListRecipes, cmdListProjects, cmdListFolders,
   cmdListConnections, cmdListDataTables, cmdGetDataTable,
   cmdGetJobs, cmdGetJob,
@@ -15,8 +15,8 @@ const {
 
 // Setup commands run before env/token setup
 const _setupCmd = process.argv[2];
-if (_setupCmd === 'bootstrap-claude') {
-  cmdBootstrapClaude(process.cwd());
+if (_setupCmd === 'bootstrap') {
+  cmdBootstrap(process.cwd());
   process.exit(0);
 }
 if (_setupCmd === 'auth') {
@@ -71,7 +71,7 @@ function usage() {
 workato <command> [options]
 
 Setup:
-  bootstrap-claude                           Copy CLAUDE.md into the current directory
+  bootstrap                                  Copy CLAUDE.md into the current directory
   auth <token>                               Save API token to .env in the current directory
 
 Read commands:

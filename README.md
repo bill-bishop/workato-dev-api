@@ -1,8 +1,29 @@
 # workato-dev-api
 
-A zero-dependency CLI for the [Workato Developer API](https://docs.workato.com/workato-api.html). Read and edit recipes, connections, data tables, projects, folders, and jobs from your terminal.
+Zero-dependency CLI and SDK for the [Workato Developer API](https://docs.workato.com/workato-api.html). Built for use with AI coding assistants and programmatic tooling — read and write recipes, connections, data tables, projects, folders, and jobs.
 
-## Install
+---
+
+## Claude Code / Cursor / Windsurf / ...
+
+In a clean working directory, run these two commands once before opening your AI assistant:
+
+```sh
+npx workato-dev-api auth YOUR_API_TOKEN
+npx workato-dev-api bootstrap
+```
+
+The first saves your token to `.env`. The second drops a `CLAUDE.md` into the directory — picked up automatically by Claude Code, Cursor, Windsurf, and other assistants that support project context files — giving it full Workato context: recipe structure, wiring syntax, data table column naming, and how to use this CLI.
+
+Then open your assistant in that directory and start working.
+
+> **Workato free sandbox?** Just tell your assistant — it will update your `package.json` automatically so the CLI points at the right URL.
+
+---
+
+## SDK / CLI Reference
+
+### Install
 
 ```sh
 npm install -g workato-dev-api
@@ -14,44 +35,42 @@ Or use without installing:
 npx workato-dev-api <command>
 ```
 
-## Authentication
+### Authentication
 
-Set `WORKATO_API_TOKEN` in a `.env` file. The CLI checks these locations in order, with **later files winning**:
-
-1. `<package-dir>/.env` — lowest priority (rarely used)
-2. `~/.env` — your home directory default
-3. `./.env` (cwd) — **highest priority**, project-specific override
+Set `WORKATO_API_TOKEN` in a `.env` file, or run:
 
 ```sh
-# .env
-WORKATO_API_TOKEN=your_token_here
+workato auth YOUR_API_TOKEN
 ```
 
-You can also export it directly in your shell environment.
+The CLI checks `.env` files in this order, with later files winning:
 
-## Claude Code setup
+1. `<package-dir>/.env`
+2. `~/.env`
+3. `./.env` (cwd) — highest priority
 
-In a clean working directory, run these two commands once before starting Claude Code:
+### Sandbox configuration
 
-```sh
-npx workato-dev-api auth YOUR_API_TOKEN
-npx workato-dev-api bootstrap-claude
+By default the CLI targets `app.workato.com`. For a Workato free sandbox (trial account), set in your `package.json`:
+
+```json
+{
+  "workato": { "sandbox": true }
+}
 ```
 
-That's it. The first command saves your token to `.env`. The second drops a `CLAUDE.md` into the directory so Claude Code automatically has full context — recipe structure, wiring syntax, data table column names, and project reference IDs.
+This switches the base URL to `app.trial.workato.com`.
 
-Then open Claude Code in that directory and start working. If you're on a **Workato free sandbox**, just tell Claude — it will update your `package.json` automatically so the CLI points at the right URL.
+### Commands
 
-## Commands
-
-### Setup
+#### Setup
 
 | Command | Description |
 |---|---|
-| `workato bootstrap-claude` | Copy `CLAUDE.md` into the current directory |
-| `workato auth <token>` | Save your API token to `.env` in the current directory |
+| `workato auth <token>` | Save API token to `.env` in the current directory |
+| `workato bootstrap` | Copy `CLAUDE.md` into the current directory |
 
-### Read
+#### Read
 
 | Command | Description |
 |---|---|
@@ -65,7 +84,7 @@ Then open Claude Code in that directory and start working. If you're on a **Work
 | `workato get-jobs <recipe_id>` | List recent jobs. Filters: `--limit <n>`, `--status <status>` |
 | `workato get-job <recipe_id> <job_id>` | Fetch a single job |
 
-### Write
+#### Write
 
 | Command | Description |
 |---|---|
@@ -77,48 +96,19 @@ Then open Claude Code in that directory and start working. If you're on a **Work
 | `workato stop <recipe_id>` | Stop a recipe |
 | `workato delete <recipe_id>` | Delete a recipe |
 
-## Examples
-
-```sh
-# Fetch recipe code and save to file
-workato get 167603
-
-# List all recipes in a project
-workato list-recipes --project 14318
-
-# List jobs that failed
-workato get-jobs 167603 --limit 20 --status failed
-
-# Start a recipe
-workato start 167603
-
-# Patch a single step's input fields
-cat > patch.json <<'EOF'
-{
-  "input": {
-    "language": "fr"
-  }
-}
-EOF
-workato update-step 167603 5df21cfd patch.json
-
-# Replace entire recipe code
-workato put-code 167603 recipe_167603_code.json
-```
-
-## Recipe code structure
+### Recipe code structure
 
 A recipe's code is a JSON object. The top-level object is the **trigger** step; action steps live in `code.block[]`. Each step has a unique `as` field (8-char hex) used for cross-step wiring (datapills).
 
-`workato get <id>` saves the code to `recipe_<id>_code.json` so you can inspect and edit it before pushing back with `put-code`.
+`workato get <id>` saves the code to `recipe_<id>_code.json` for inspection and editing before pushing back with `put-code`.
 
-## Development
+### Development
 
 ```sh
-git clone ...
+git clone https://github.com/bill-bishop/workato-dev-api
 cd workato-dev-api
 cp .env.example .env   # add your token
-npm test               # runs 88 unit tests, no network required
+npm test               # 110 unit tests, no network required
 ```
 
 Tests use Node's built-in `node:test` runner — no extra dependencies.

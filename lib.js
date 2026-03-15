@@ -160,7 +160,7 @@ function apiTriggerConfig() {
 
 // ── Setup commands ────────────────────────────────────────────────────────────
 
-function cmdBootstrapClaude(destDir) {
+function cmdBootstrap(destDir) {
   const src = path.join(__dirname, 'CLAUDE.md');
   const dest = path.join(destDir ?? process.cwd(), 'CLAUDE.md');
   fs.copyFileSync(src, dest);
@@ -353,7 +353,7 @@ module.exports = {
   findStep, deepMerge, extractCode,
   apiTriggerCode, apiTriggerConfig,
   // setup commands
-  cmdBootstrapClaude, cmdAuth,
+  cmdBootstrap, cmdAuth,
   // read commands
   cmdGet, cmdListRecipes, cmdListProjects, cmdListFolders,
   cmdListConnections, cmdListDataTables, cmdGetDataTable,
