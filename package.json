@@ -1,0 +1,22 @@
+{
+  "name": "workato-dev-api",
+  "version": "1.0.1",
+  "description": "CLI for the Workato Developer API — recipes, connections, data tables, and more",
+  "bin": {
+    "workato": "cli.js"
+  },
+  "scripts": {
+    "test": "node --test test/cli.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "workato",
+    "cli",
+    "api",
+    "recipes",
+    "automation"
+  ],
+  "license": "MIT"
+}
