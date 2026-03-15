@@ -982,6 +982,107 @@ describe('cmdUpdateStep — deeply nested step', () => {
   });
 });
 
+// ── resolveBaseUrl ────────────────────────────────────────────────────────────
+
+describe('resolveBaseUrl', () => {
+  test('returns production URL when sandbox is false', () => {
+    assert.equal(lib.resolveBaseUrl(false), 'https://app.workato.com/api');
+  });
+
+  test('returns production URL when sandbox is undefined', () => {
+    assert.equal(lib.resolveBaseUrl(undefined), 'https://app.workato.com/api');
+  });
+
+  test('returns production URL when sandbox is a string "false"', () => {
+    assert.equal(lib.resolveBaseUrl('false'), 'https://app.workato.com/api');
+  });
+
+  test('returns sandbox URL when sandbox is true', () => {
+    assert.equal(lib.resolveBaseUrl(true), 'https://app.trial.workato.com/api');
+  });
+
+  test('sandbox URL contains "trial"', () => {
+    assert.ok(lib.resolveBaseUrl(true).includes('trial'));
+  });
+
+  test('production URL does not contain "trial"', () => {
+    assert.ok(!lib.resolveBaseUrl(false).includes('trial'));
+  });
+});
+
+// ── readProjectConfig ─────────────────────────────────────────────────────────
+
+describe('readProjectConfig', () => {
+  function tmpDir() {
+    const d = path.join(os.tmpdir(), `workato-cfg-test-${Date.now()}-${Math.random()}`);
+    fs.mkdirSync(d, { recursive: true });
+    return d;
+  }
+
+  test('returns empty object when no package.json exists', () => {
+    const dir = tmpDir();
+    try {
+      assert.deepEqual(lib.readProjectConfig(dir), {});
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('returns parsed package.json contents', () => {
+    const dir = tmpDir();
+    try {
+      fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ workato: { sandbox: true } }));
+      const cfg = lib.readProjectConfig(dir);
+      assert.equal(cfg.workato.sandbox, true);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('returns empty object when package.json is malformed JSON', () => {
+    const dir = tmpDir();
+    try {
+      fs.writeFileSync(path.join(dir, 'package.json'), 'not valid json {{{');
+      assert.deepEqual(lib.readProjectConfig(dir), {});
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('sandbox false in package.json resolves to production URL', () => {
+    const dir = tmpDir();
+    try {
+      fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ workato: { sandbox: false } }));
+      const { workato: wCfg = {} } = lib.readProjectConfig(dir);
+      assert.equal(lib.resolveBaseUrl(wCfg.sandbox), 'https://app.workato.com/api');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('sandbox true in package.json resolves to trial URL', () => {
+    const dir = tmpDir();
+    try {
+      fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ workato: { sandbox: true } }));
+      const { workato: wCfg = {} } = lib.readProjectConfig(dir);
+      assert.equal(lib.resolveBaseUrl(wCfg.sandbox), 'https://app.trial.workato.com/api');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('missing workato key resolves to production URL', () => {
+    const dir = tmpDir();
+    try {
+      fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: 'my-project' }));
+      const { workato: wCfg = {} } = lib.readProjectConfig(dir);
+      assert.equal(lib.resolveBaseUrl(wCfg.sandbox), 'https://app.workato.com/api');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
 // ── cmdBootstrapClaude ────────────────────────────────────────────────────────
 
 describe('cmdBootstrapClaude', () => {

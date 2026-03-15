@@ -4,7 +4,7 @@
 const os = require('os');
 const path = require('path');
 const {
-  loadEnv,
+  loadEnv, setConfig, resolveBaseUrl, readProjectConfig,
   cmdBootstrapClaude, cmdAuth,
   cmdGet, cmdListRecipes, cmdListProjects, cmdListFolders,
   cmdListConnections, cmdListDataTables, cmdGetDataTable,
@@ -39,6 +39,10 @@ if (!process.env.WORKATO_API_TOKEN) {
   console.error('Error: WORKATO_API_TOKEN not set.\nRun: workato auth <your_token>\nOr create a .env file with: WORKATO_API_TOKEN=your_token_here');
   process.exit(1);
 }
+
+// Apply base URL from workato.sandbox in cwd package.json
+const { workato: _wCfg = {} } = readProjectConfig();
+setConfig({ baseUrl: resolveBaseUrl(_wCfg.sandbox) });
 
 // Parse argv: separate --flag value pairs from positional args
 function parseArgs(argv) {

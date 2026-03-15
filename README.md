@@ -40,7 +40,7 @@ npx workato-dev-api bootstrap-claude
 
 That's it. The first command saves your token to `.env`. The second drops a `CLAUDE.md` into the directory so Claude Code automatically has full context — recipe structure, wiring syntax, data table column names, and project reference IDs.
 
-Then just open Claude Code in that directory and start working.
+Then open Claude Code in that directory and start working. If you're on a **Workato free sandbox**, just tell Claude — it will update your `package.json` automatically so the CLI points at the right URL.
 
 ## Commands
 

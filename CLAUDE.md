@@ -4,7 +4,13 @@
 
 Use `npx workato-dev-api <command>` (or `workato <command>` if installed globally) for all Workato operations — reads and writes alike.
 
-Requires `WORKATO_API_TOKEN` in a `.env` file (cwd `.env` takes highest priority). Base URL: `https://app.trial.workato.com/api`.
+Requires `WORKATO_API_TOKEN` in a `.env` file (cwd `.env` takes highest priority).
+
+Base URL is determined by `workato.sandbox` in the project's `package.json`:
+- `false` (default): `https://app.workato.com/api`
+- `true` (free sandbox): `https://app.trial.workato.com/api`
+
+**If the user says they are on a Workato free sandbox or trial account, set `"sandbox": true` in the `workato` block of their `package.json` immediately.**
 
 ### Commands
 
@@ -127,13 +133,12 @@ Always use `workato get-data-table <id>` or read the recipe code to look up the 
 
 ---
 
-## Reference Recipe
+## Reference Recipes
 
-**Transcribe Audio** (ID: 167603) — `https://app.trial.workato.com/recipes/167603-transcribe-audio`
+If you are unsure how to wire a particular connector or step type, ask the user:
+> "Do you have an existing recipe that uses [connector/trigger type]? If so, share the recipe ID and I'll fetch it as a wiring reference."
 
-This recipe demonstrates complete working wiring across all three step types (API Platform trigger → OpenAI action → Data Table action). Use it as the canonical wiring reference.
-
-Trigger `as`: `8f52532b` | OpenAI step `as`: `5df21cfd` | Data Table step `as`: `1614a36d`
+Use `workato get <recipe_id>` to inspect the code and extract the correct `as` IDs, `provider` values, `input` structure, and `extended_output_schema` before building or patching a new recipe.
 
 ---
 

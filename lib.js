@@ -7,9 +7,24 @@ const crypto = require('crypto');
 // ── Config ────────────────────────────────────────────────────────────────────
 
 const _config = {
-  baseUrl: 'https://app.trial.workato.com/api',
+  baseUrl: 'https://app.workato.com/api',
   token: null,
 };
+
+function resolveBaseUrl(sandbox) {
+  return sandbox === true
+    ? 'https://app.trial.workato.com/api'
+    : 'https://app.workato.com/api';
+}
+
+function readProjectConfig(cwd) {
+  const pkgPath = path.join(cwd ?? process.cwd(), 'package.json');
+  try {
+    return JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+  } catch {
+    return {};
+  }
+}
 
 function loadEnv(envPath) {
   const p = envPath ?? path.join(process.cwd(), '.env');
@@ -331,7 +346,7 @@ async function cmdDelete(recipeId) {
 
 module.exports = {
   // config
-  loadEnv, setConfig, getToken,
+  loadEnv, setConfig, getToken, resolveBaseUrl, readProjectConfig,
   // http
   apiGet, apiPost, apiPut, apiDelete,
   // helpers
