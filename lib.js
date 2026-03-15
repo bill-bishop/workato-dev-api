@@ -160,11 +160,11 @@ function apiTriggerConfig() {
 
 // ── Setup commands ────────────────────────────────────────────────────────────
 
-function cmdBootstrap(destDir) {
-  const src = path.join(__dirname, 'CLAUDE.md');
-  const dest = path.join(destDir ?? process.cwd(), 'CLAUDE.md');
+function cmdBootstrap(filename, destDir) {
+  const src = path.join(__dirname, filename);
+  const dest = path.join(destDir ?? process.cwd(), filename);
   fs.copyFileSync(src, dest);
-  console.log(`CLAUDE.md written to ${dest}`);
+  console.log(`${filename} written to ${dest}`);
   return dest;
 }
 

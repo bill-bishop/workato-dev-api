@@ -1095,7 +1095,7 @@ describe('cmdBootstrap', () => {
   test('copies CLAUDE.md into the destination directory', () => {
     const dir = tmpDir();
     try {
-      lib.cmdBootstrap(dir);
+      lib.cmdBootstrap('CLAUDE.md', dir);
       assert.ok(fs.existsSync(path.join(dir, 'CLAUDE.md')), 'CLAUDE.md should exist in dest dir');
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
@@ -1105,7 +1105,7 @@ describe('cmdBootstrap', () => {
   test('written file content matches the source CLAUDE.md', () => {
     const dir = tmpDir();
     try {
-      lib.cmdBootstrap(dir);
+      lib.cmdBootstrap('CLAUDE.md', dir);
       const srcPath = path.join(__dirname, '..', 'CLAUDE.md');
       const src = fs.readFileSync(srcPath, 'utf8');
       const dest = fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf8');
@@ -1118,7 +1118,7 @@ describe('cmdBootstrap', () => {
   test('returns the destination file path', () => {
     const dir = tmpDir();
     try {
-      const result = lib.cmdBootstrap(dir);
+      const result = lib.cmdBootstrap('CLAUDE.md', dir);
       assert.equal(result, path.join(dir, 'CLAUDE.md'));
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
@@ -1129,9 +1129,19 @@ describe('cmdBootstrap', () => {
     const dir = tmpDir();
     try {
       fs.writeFileSync(path.join(dir, 'CLAUDE.md'), 'old content');
-      lib.cmdBootstrap(dir);
+      lib.cmdBootstrap('CLAUDE.md', dir);
       const content = fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf8');
       assert.notEqual(content, 'old content');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('uses the provided filename as the destination filename', () => {
+    const dir = tmpDir();
+    try {
+      const result = lib.cmdBootstrap('CLAUDE.md', dir);
+      assert.ok(result.endsWith('CLAUDE.md'));
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }

@@ -10,7 +10,7 @@ In a clean working directory, run these two commands once before opening your AI
 
 ```sh
 npx workato-dev-api auth YOUR_API_TOKEN
-npx workato-dev-api bootstrap
+npx workato-dev-api bootstrap CLAUDE.md
 ```
 
 The first saves your token to `.env`. The second drops a `CLAUDE.md` into the directory — picked up automatically by Claude Code, Cursor, Windsurf, and other assistants that support project context files — giving it full Workato context: recipe structure, wiring syntax, data table column naming, and how to use this CLI.
@@ -68,7 +68,7 @@ This switches the base URL to `app.trial.workato.com`.
 | Command | Description |
 |---|---|
 | `workato auth <token>` | Save API token to `.env` in the current directory |
-| `workato bootstrap` | Copy `CLAUDE.md` into the current directory |
+| `workato bootstrap <file>` | Copy a context file into the current directory (e.g. `CLAUDE.md`) |
 
 #### Read
 

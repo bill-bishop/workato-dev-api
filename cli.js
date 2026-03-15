@@ -16,7 +16,12 @@ const {
 // Setup commands run before env/token setup
 const _setupCmd = process.argv[2];
 if (_setupCmd === 'bootstrap') {
-  cmdBootstrap(process.cwd());
+  const filename = process.argv[3];
+  if (!filename) {
+    console.error('Usage: workato bootstrap CLAUDE.md');
+    process.exit(1);
+  }
+  cmdBootstrap(filename, process.cwd());
   process.exit(0);
 }
 if (_setupCmd === 'auth') {
@@ -71,7 +76,7 @@ function usage() {
 workato <command> [options]
 
 Setup:
-  bootstrap                                  Copy CLAUDE.md into the current directory
+  bootstrap <file>                           Copy a context file (e.g. CLAUDE.md) into the current directory
   auth <token>                               Save API token to .env in the current directory
 
 Read commands:
