@@ -89,14 +89,14 @@ All field values in a step's `input` object use one of three forms:
 - `line`: the `as` value (8-char hex) of the source step
 - `path`: JSON array of strings navigating the output schema
 
-**Example — wire trigger's `request.file_content` into an OpenAI step:**
+**Example — wire a trigger field into a downstream step:**
 ```json
-"file_content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"8f52532b\",\"path\":[\"request\",\"file_content\"]}')}
+"file_content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"<trigger_as_id>\",\"path\":[\"request\",\"file_content\"]}')}
 ```
 
-**Example — wire OpenAI step's `text` output into a data table column:**
+**Example — wire a step's output into a data table column:**
 ```json
-"03886fe9_176d_4bdd_9296_d48219b345c8": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"open_ai\",\"line\":\"5df21cfd\",\"path\":[\"text\"]}')}
+"<column_uuid>": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"open_ai\",\"line\":\"<step_as_id>\",\"path\":[\"text\"]}')}
 ```
 
 ### 2. Formula mode — Workato functions/expressions
@@ -113,23 +113,14 @@ Prefix the value with `=` inside the string:
 Plain string value — no special syntax:
 ```json
 "language": "en",
-"table_id": "3512"
+"table_id": "123"
 ```
 
 ---
 
 ## Data Table Column Names
 
-Data table column field names in `input.parameters` are **UUID-style strings with underscores**, not human-readable names. You must fetch the recipe's existing code (or the data table schema) to get the correct column key for each field.
-
-Example from Audio Transcripts table:
-- `transcript_text` → `03886fe9_176d_4bdd_9296_d48219b345c8`
-- `transcribed_at`  → `aa4e76dd_0de1_4f0a_946b_fb0a4e1ecff5`
-- `file_name`       → `33ee499b_51cc_4ddf_ba03_6a5b8eca79f5`
-- `file_id`         → `0f05f324_040d_4d11_b201_05afaa850729`
-- `recorded_at`     → `aefc6da4_93a5_40e9_b933_13c2cac095ac`
-
-Always use `workato get-data-table <id>` or read the recipe code to look up the actual column UUIDs before wiring.
+Data table column field names in `input.parameters` are **UUID-style strings with underscores**, not human-readable names. Always use `workato get-data-table <id>` or read the existing recipe code to look up the correct column UUIDs before wiring — never guess them.
 
 ---
 
@@ -139,20 +130,3 @@ If you are unsure how to wire a particular connector or step type, ask the user:
 > "Do you have an existing recipe that uses [connector/trigger type]? If so, share the recipe ID and I'll fetch it as a wiring reference."
 
 Use `workato get <recipe_id>` to inspect the code and extract the correct `as` IDs, `provider` values, `input` structure, and `extended_output_schema` before building or patching a new recipe.
-
----
-
-## Current Project
-
-**"Get Audio Transcript"** — Project ID: `14318`, Folder ID: `20245`
-
-Key recipe IDs:
-- `167582` — Get Audio Transcript (callable, RecipeOps trigger)
-- `167583` — Audio File Orchestrator (Google Drive trigger)
-- `167603` — Transcribe Audio (API Platform trigger, reference recipe)
-
-Key connection IDs:
-- OpenAI: `14358`
-- RecipeOps: `14233`
-
-Data Table: **Audio Transcripts** (ID: `3512`) in project `14318`.
