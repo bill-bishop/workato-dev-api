@@ -399,6 +399,43 @@ describe('cmdCreate', () => {
       await lib.cmdCreate('My Recipe', 'code.json');
       assert.equal(postedBody.recipe.name, 'My Recipe');
       assert.deepEqual(JSON.parse(postedBody.recipe.code), code);
+      assert.equal(postedBody.recipe.config, undefined);
+    } finally {
+      require('fs').readFileSync = origRead;
+    }
+  });
+
+  test('accepts wrapper { code, config } format and sends config', async () => {
+    const code = { number: 0, as: 'def', block: [] };
+    const config = [{ keyword: 'application', name: 'open_ai', provider: 'open_ai', skip_validation: false, account_id: 42 }];
+    const origRead = require('fs').readFileSync;
+    try {
+      require('fs').readFileSync = () => JSON.stringify({ code, config });
+      let postedBody;
+      global.fetch = async (url, opts) => {
+        postedBody = JSON.parse(opts.body);
+        return { ok: true, json: async () => ({ recipe: { id: 101 } }) };
+      };
+      await lib.cmdCreate('Wired Recipe', 'wrapper.json');
+      assert.deepEqual(JSON.parse(postedBody.recipe.code), code);
+      assert.deepEqual(JSON.parse(postedBody.recipe.config), config);
+    } finally {
+      require('fs').readFileSync = origRead;
+    }
+  });
+
+  test('bare code format does not send config field', async () => {
+    const code = { number: 0, as: 'ghi', block: [] };
+    const origRead = require('fs').readFileSync;
+    try {
+      require('fs').readFileSync = () => JSON.stringify(code);
+      let postedBody;
+      global.fetch = async (url, opts) => {
+        postedBody = JSON.parse(opts.body);
+        return { ok: true, json: async () => ({ recipe: { id: 102 } }) };
+      };
+      await lib.cmdCreate('Bare Recipe', 'code.json');
+      assert.ok(!('config' in postedBody.recipe), 'config should not be present for bare code');
     } finally {
       require('fs').readFileSync = origRead;
     }

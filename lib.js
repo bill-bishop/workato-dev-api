@@ -264,10 +264,15 @@ async function cmdGetJob(recipeId, jobId) {
 // ── Write commands ────────────────────────────────────────────────────────────
 
 async function cmdCreate(name, codeFile) {
-  const code = JSON.parse(fs.readFileSync(codeFile, 'utf8'));
-  const result = await apiPost('/recipes', {
-    recipe: { name, code: JSON.stringify(code) },
-  });
+  const input = JSON.parse(fs.readFileSync(codeFile, 'utf8'));
+  const isWrapper = input.code !== undefined;
+  const code = isWrapper ? input.code : input;
+  const config = isWrapper ? input.config : undefined;
+
+  const recipe = { name, code: JSON.stringify(code) };
+  if (config) recipe.config = JSON.stringify(config);
+
+  const result = await apiPost('/recipes', { recipe });
   console.log(JSON.stringify(result, null, 2));
   const id = (result.recipe ?? result).id;
   console.error(`\nCreated recipe id: ${id}`);

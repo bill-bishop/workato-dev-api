@@ -25,7 +25,7 @@ Base URL is determined by `workato.sandbox` in the project's `package.json`:
 | `workato get-data-table <id>` | Fetch data table schema and details |
 | `workato get-jobs <recipe_id>` | List recent jobs. Filters: `--limit <n>`, `--status <status>` |
 | `workato get-job <recipe_id> <job_id>` | Fetch a single job |
-| `workato create "<name>" <code.json>` | Create a recipe from a full code JSON file |
+| `workato create "<name>" <code.json>` | Create a recipe from a code JSON file. File may be a bare code object **or** a `{ "code": {...}, "config": [...] }` wrapper (use the wrapper to set connections at creation time). |
 | `workato create-api-trigger "<name>"` | Create a recipe with a bare API Platform trigger |
 | `workato update-step <recipe_id> <step_as_id> <patch.json>` | Deep-merge a patch into one step (by `as` ID) |
 | `workato put-code <recipe_id> <code.json>` | Replace entire recipe code |
