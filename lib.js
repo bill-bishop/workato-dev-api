@@ -171,8 +171,9 @@ function cmdBootstrap({ user = false, destDir, homeDir } = {}) {
   return dest;
 }
 
-function cmdAuth(token, destDir) {
-  const envPath = path.join(destDir ?? process.cwd(), '.env');
+function cmdAuth(token, destDir, { user = false, homeDir } = {}) {
+  const base = user ? (homeDir ?? os.homedir()) : (destDir ?? process.cwd());
+  const envPath = path.join(base, '.env');
   let content = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';
   const line = `WORKATO_API_TOKEN=${token}`;
   if (/^WORKATO_API_TOKEN=/m.test(content)) {

@@ -1284,6 +1284,22 @@ describe('cmdAuth', () => {
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  test('--user flag writes token to home dir .env', () => {
+    const fakeHome = path.join(os.tmpdir(), `workato-auth-home-${Date.now()}-${Math.random()}`);
+    const projectDir = tmpDir();
+    fs.mkdirSync(fakeHome, { recursive: true });
+    try {
+      lib.cmdAuth('hometoken', projectDir, { user: true, homeDir: fakeHome });
+      assert.ok(fs.existsSync(path.join(fakeHome, '.env')), 'home .env should exist');
+      const content = fs.readFileSync(path.join(fakeHome, '.env'), 'utf8');
+      assert.ok(content.includes('WORKATO_API_TOKEN=hometoken'), 'token in home .env');
+      assert.ok(!fs.existsSync(path.join(projectDir, '.env')), 'project .env should not be created');
+    } finally {
+      fs.rmSync(fakeHome, { recursive: true, force: true });
+      fs.rmSync(projectDir, { recursive: true, force: true });
+    }
+  });
 });
 
 // Restore console at end

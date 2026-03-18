@@ -21,12 +21,14 @@ if (_setupCmd === 'bootstrap') {
   process.exit(0);
 }
 if (_setupCmd === 'auth') {
-  const token = process.argv[3];
+  const authArgs = process.argv.slice(3);
+  const userFlag = authArgs.includes('--user');
+  const token = authArgs.find(a => !a.startsWith('--'));
   if (!token) {
-    console.error('Usage: workato auth <token>');
+    console.error('Usage: workato auth <token> [--user]');
     process.exit(1);
   }
-  cmdAuth(token, process.cwd());
+  cmdAuth(token, process.cwd(), { user: userFlag });
   process.exit(0);
 }
 
@@ -73,7 +75,7 @@ workato <command> [options]
 
 Setup:
   bootstrap <file>                           Copy a context file (e.g. CLAUDE.md) into the current directory
-  auth <token>                               Save API token to .env in the current directory
+  auth <token> [--user]                      Save API token to .env (default: cwd; --user: home dir)
 
 Read commands:
   get <recipe_id>                            Fetch recipe code → recipe_<id>_code.json
