@@ -22,10 +22,11 @@ This writes `.claude/commands/workato.md` in your current directory. Commit it a
 **User-level** (available in every project on your machine):
 
 ```sh
+npx workato-dev-api auth YOUR_API_TOKEN --user
 npx workato-dev-api bootstrap --user
 ```
 
-This writes `~/.claude/commands/workato.md`.
+This writes `~/.env` and `~/.claude/commands/workato.md`.
 
 ### Using the skill
 
@@ -64,7 +65,8 @@ npx workato-dev-api <command>
 Set `WORKATO_API_TOKEN` in a `.env` file, or run:
 
 ```sh
-workato auth YOUR_API_TOKEN
+workato auth YOUR_API_TOKEN           # writes to cwd/.env
+workato auth YOUR_API_TOKEN --user    # writes to ~/.env
 ```
 
 The CLI checks `.env` files in this order, with later files winning:
@@ -91,7 +93,7 @@ This switches the base URL to `app.trial.workato.com`.
 
 | Command | Description |
 |---|---|
-| `workato auth <token>` | Save API token to `.env` in the current directory |
+| `workato auth <token> [--user]` | Save API token to `.env` (default: cwd; `--user`: home dir) |
 | `workato bootstrap [--user]` | Install the `/workato` Claude Code skill (project-level by default, `--user` for user-level) |
 
 #### Read
@@ -132,7 +134,7 @@ A recipe's code is a JSON object. The top-level object is the **trigger** step; 
 git clone https://github.com/bill-bishop/workato-dev-api
 cd workato-dev-api
 cp .env.example .env   # add your token
-npm test               # 114 unit tests, no network required
+npm test               # 115 unit tests, no network required
 ```
 
 Tests use Node's built-in `node:test` runner — no extra dependencies.
