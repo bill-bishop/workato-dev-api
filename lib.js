@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
 
@@ -160,11 +161,13 @@ function apiTriggerConfig() {
 
 // ── Setup commands ────────────────────────────────────────────────────────────
 
-function cmdBootstrap(filename, destDir) {
-  const src = path.join(__dirname, filename);
-  const dest = path.join(destDir ?? process.cwd(), filename);
-  fs.copyFileSync(src, dest);
-  console.log(`${filename} written to ${dest}`);
+function cmdBootstrap({ user = false, destDir, homeDir } = {}) {
+  const base = user ? (homeDir ?? os.homedir()) : (destDir ?? process.cwd());
+  const dir = path.join(base, '.claude', 'commands');
+  const dest = path.join(dir, 'workato.md');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.copyFileSync(path.join(__dirname, 'workato.md'), dest);
+  console.log(`workato skill written to ${dest}`);
   return dest;
 }
 

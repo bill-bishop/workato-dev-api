@@ -16,12 +16,8 @@ const {
 // Setup commands run before env/token setup
 const _setupCmd = process.argv[2];
 if (_setupCmd === 'bootstrap') {
-  const filename = process.argv[3];
-  if (!filename) {
-    console.error('Usage: workato bootstrap CLAUDE.md');
-    process.exit(1);
-  }
-  cmdBootstrap(filename, process.cwd());
+  const userFlag = process.argv.slice(3).includes('--user');
+  cmdBootstrap({ user: userFlag });
   process.exit(0);
 }
 if (_setupCmd === 'auth') {

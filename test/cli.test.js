@@ -1129,58 +1129,76 @@ describe('cmdBootstrap', () => {
     return d;
   }
 
-  test('copies CLAUDE.md into the destination directory', () => {
+  test('copies workato.md into .claude/commands/ in the destination dir', () => {
     const dir = tmpDir();
     try {
-      lib.cmdBootstrap('CLAUDE.md', dir);
-      assert.ok(fs.existsSync(path.join(dir, 'CLAUDE.md')), 'CLAUDE.md should exist in dest dir');
+      lib.cmdBootstrap({ destDir: dir });
+      assert.ok(
+        fs.existsSync(path.join(dir, '.claude', 'commands', 'workato.md')),
+        'workato.md should exist in .claude/commands/',
+      );
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 
-  test('written file content matches the source CLAUDE.md', () => {
+  test('written file content matches source workato.md', () => {
     const dir = tmpDir();
     try {
-      lib.cmdBootstrap('CLAUDE.md', dir);
-      const srcPath = path.join(__dirname, '..', 'CLAUDE.md');
+      lib.cmdBootstrap({ destDir: dir });
+      const srcPath = path.join(__dirname, '..', 'workato.md');
       const src = fs.readFileSync(srcPath, 'utf8');
-      const dest = fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf8');
+      const dest = fs.readFileSync(path.join(dir, '.claude', 'commands', 'workato.md'), 'utf8');
       assert.equal(dest, src);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 
-  test('returns the destination file path', () => {
+  test('returns destination path ending in .claude/commands/workato.md', () => {
     const dir = tmpDir();
     try {
-      const result = lib.cmdBootstrap('CLAUDE.md', dir);
-      assert.equal(result, path.join(dir, 'CLAUDE.md'));
+      const result = lib.cmdBootstrap({ destDir: dir });
+      assert.equal(result, path.join(dir, '.claude', 'commands', 'workato.md'));
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 
-  test('overwrites an existing CLAUDE.md', () => {
+  test('overwrites an existing workato.md', () => {
     const dir = tmpDir();
     try {
-      fs.writeFileSync(path.join(dir, 'CLAUDE.md'), 'old content');
-      lib.cmdBootstrap('CLAUDE.md', dir);
-      const content = fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf8');
+      const skillDir = path.join(dir, '.claude', 'commands');
+      fs.mkdirSync(skillDir, { recursive: true });
+      fs.writeFileSync(path.join(skillDir, 'workato.md'), 'old content');
+      lib.cmdBootstrap({ destDir: dir });
+      const content = fs.readFileSync(path.join(skillDir, 'workato.md'), 'utf8');
       assert.notEqual(content, 'old content');
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 
-  test('uses the provided filename as the destination filename', () => {
+  test('creates .claude/commands/ directory if it does not exist', () => {
     const dir = tmpDir();
     try {
-      const result = lib.cmdBootstrap('CLAUDE.md', dir);
-      assert.ok(result.endsWith('CLAUDE.md'));
+      const skillDir = path.join(dir, '.claude', 'commands');
+      assert.ok(!fs.existsSync(skillDir), 'dir should not exist before bootstrap');
+      lib.cmdBootstrap({ destDir: dir });
+      assert.ok(fs.existsSync(skillDir), '.claude/commands/ should be created');
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('--user writes to home/.claude/commands/workato.md', () => {
+    const fakeHome = tmpDir();
+    try {
+      const result = lib.cmdBootstrap({ user: true, homeDir: fakeHome });
+      assert.equal(result, path.join(fakeHome, '.claude', 'commands', 'workato.md'));
+      assert.ok(fs.existsSync(result), 'skill file should exist at user-level path');
+    } finally {
+      fs.rmSync(fakeHome, { recursive: true, force: true });
     }
   });
 });
