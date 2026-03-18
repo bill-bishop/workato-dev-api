@@ -4,20 +4,44 @@ Zero-dependency CLI and SDK for the [Workato Developer API](https://docs.workato
 
 ---
 
-## Claude Code / Cursor / Windsurf / ...
+## Claude Code
 
-In a clean working directory, run these two commands once before opening your AI assistant:
+This package ships a Claude Code skill (`/workato`) that gives Claude full Workato context: recipe structure, wiring syntax, data table column naming, and every CLI command.
+
+### Install the skill
+
+**Project-level** (checked in to your repo, available to anyone who clones it):
 
 ```sh
 npx workato-dev-api auth YOUR_API_TOKEN
-npx workato-dev-api bootstrap CLAUDE.md
+npx workato-dev-api bootstrap
 ```
 
-The first saves your token to `.env`. The second drops a `CLAUDE.md` into the directory — picked up automatically by Claude Code, Cursor, Windsurf, and other assistants that support project context files — giving it full Workato context: recipe structure, wiring syntax, data table column naming, and how to use this CLI.
+This writes `.claude/commands/workato.md` in your current directory. Commit it alongside your code.
 
-Then open your assistant in that directory and start working.
+**User-level** (available in every project on your machine):
 
-> **Workato free sandbox?** Just tell your assistant — it will update your `package.json` automatically so the CLI points at the right URL.
+```sh
+npx workato-dev-api bootstrap --user
+```
+
+This writes `~/.claude/commands/workato.md`.
+
+### Using the skill
+
+Once installed, Claude can invoke the skill autonomously whenever it needs Workato context. You can also call it explicitly:
+
+```
+/workato
+```
+
+> **Workato free sandbox?** Just tell Claude — it will update your `package.json` automatically so the CLI points at the right URL.
+
+---
+
+## Other AI assistants (Cursor, Windsurf, ...)
+
+Run `workato bootstrap` and copy the generated `.claude/commands/workato.md` to wherever your assistant reads project context (e.g. `.cursorrules`, `.windsurfrules`). The content is plain markdown.
 
 ---
 
@@ -68,7 +92,7 @@ This switches the base URL to `app.trial.workato.com`.
 | Command | Description |
 |---|---|
 | `workato auth <token>` | Save API token to `.env` in the current directory |
-| `workato bootstrap <file>` | Copy a context file into the current directory (e.g. `CLAUDE.md`) |
+| `workato bootstrap [--user]` | Install the `/workato` Claude Code skill (project-level by default, `--user` for user-level) |
 
 #### Read
 
@@ -108,7 +132,7 @@ A recipe's code is a JSON object. The top-level object is the **trigger** step; 
 git clone https://github.com/bill-bishop/workato-dev-api
 cd workato-dev-api
 cp .env.example .env   # add your token
-npm test               # 110 unit tests, no network required
+npm test               # 114 unit tests, no network required
 ```
 
 Tests use Node's built-in `node:test` runner — no extra dependencies.
