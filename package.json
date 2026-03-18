@@ -1,6 +1,6 @@
 {
   "name": "workato-dev-api",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "CLI for the Workato Developer API — recipes, connections, data tables, and more",
   "bin": {
     "workato": "cli.js"
