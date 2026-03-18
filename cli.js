@@ -47,6 +47,12 @@ if (!process.env.WORKATO_API_TOKEN) {
 const { workato: _wCfg = {} } = readProjectConfig();
 setConfig({ baseUrl: resolveBaseUrl(_wCfg.sandbox) });
 
+// Warn if token looks like a sandbox token but the URL is not sandbox
+const _token = process.env.WORKATO_API_TOKEN || '';
+if (_token.toLowerCase().includes('trial') && !_wCfg.sandbox) {
+  console.error('Workato Sandbox token detected. Switch to sandbox mode or switch to an Enterprise token.');
+}
+
 // Parse argv: separate --flag value pairs from positional args
 function parseArgs(argv) {
   const positional = [];
